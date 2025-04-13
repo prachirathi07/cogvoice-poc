@@ -1,0 +1,10 @@
+pandas
+numpy
+librosa
+openai-whisper
+nltk
+scikit-learn
+matplotlib
+seaborn
+streamlit
+soundfile
