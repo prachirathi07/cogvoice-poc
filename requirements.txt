@@ -1,10 +1,14 @@
+# API Framework
+fastapi
+uvicorn
+python-multipart
+
+# Core ML/Audio/Text Libraries
+openai-whisper
+torch
+librosa
+soundfile
 pandas
 numpy
-librosa
-openai-whisper
-nltk
 scikit-learn
-matplotlib
-seaborn
-streamlit
-soundfile
+nltk

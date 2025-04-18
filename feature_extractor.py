@@ -1,21 +1,20 @@
+# feature_extractor.py (Corrected: Removed runtime NLTK download)
+
 import librosa
 import librosa.effects
 import numpy as np
 import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 import collections
+import os # Keep os import if needed elsewhere, but not for NLTK_DATA here
 
 from config import (
     TARGET_SR, PAUSE_THRESHOLD_DB, MIN_SILENCE_DURATION_S,
     FMIN, FMAX, HESITATION_MARKERS
 )
 
-try:
-    nltk.data.find('tokenizers/punkt')
-except nltk.downloader.DownloadError:
-    print("Downloading NLTK 'punkt' tokenizer...")
-    nltk.download('punkt')
-    print("NLTK 'punkt' downloaded.")
+# --- REMOVED THE NLTK DOWNLOAD BLOCK ---
+# The 'punkt' data should be pre-downloaded by the Dockerfile build process
 
 
 def extract_audio_features(y, sr):
@@ -71,6 +70,8 @@ def extract_text_features(transcript, audio_duration_seconds):
         print("      Transcript empty, returning default/NaN text features.")
         features.update({'word_count': 0, 'speech_rate_wps': 0, 'hesitation_rate': 0, 'lexical_diversity_ttr': np.nan, 'avg_sentence_length': 0})
         return features
+
+    # The code now assumes 'punkt' is available because the Docker build downloaded it
     try:
         words = word_tokenize(transcript.lower())
         cleaned_words = [word for word in words if word.isalnum() or '-' in word]
@@ -88,8 +89,10 @@ def extract_text_features(transcript, audio_duration_seconds):
             features['avg_sentence_length'] = np.mean(sentence_lengths) if sentence_lengths else 0
         else: features['avg_sentence_length'] = 0
     except Exception as e:
+        # This catch block is fine, for errors during actual tokenization/feature calculation
         print(f"      Warning: Error in text feature extraction: {e}")
         features.setdefault('word_count', 0); features.setdefault('speech_rate_wps', 0); features.setdefault('hesitation_rate', 0)
         features.setdefault('lexical_diversity_ttr', np.nan); features.setdefault('avg_sentence_length', 0)
+
     print(f"      Text features extracted: { {k: f'{v:.3f}' if isinstance(v, (float, np.number)) and not np.isnan(v) else v for k, v in features.items()} }")
     return features
